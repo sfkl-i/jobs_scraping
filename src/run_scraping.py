@@ -51,8 +51,8 @@ def get_urls(_settings):
 
 async def main(value):
     func, url, city, language = value
-    job = await loop.run_in_executor(None, func, url, city, language)
-    # errors.extend(err)
+    job, err = await loop.run_in_executor(None, func, url, city, language)
+    errors.extend(err)
     jobs.extend(job)
 
 settings = get_settings()

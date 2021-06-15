@@ -75,14 +75,14 @@ for job in jobs:
         v.save()
     except DatabaseError:
         pass
-if errors:
-    qs = Error.objects.filter(timestamp=dt.date.today())
-    if qs.exists():
-        err = qs.first()
-        err.data.update({'errors': errors})
-        err.save()
-    else:
-        er = Error(data=f'errors:{errors}').save()
+# if errors:
+#     qs = Error.objects.filter(timestamp=dt.date.today())
+#     if qs.exists():
+#         err = qs.first()
+#         err.data.update({'errors': errors})
+#         err.save()
+#     else:
+#         er = Error(data=f'errors:{errors}').save()
 
 #deleting duplicates
 ten_days_ago = dt.date.today() - dt.timedelta(10)

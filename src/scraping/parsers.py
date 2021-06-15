@@ -131,7 +131,6 @@ def dou(url, city=None, language=None):
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--no-sandbox")
-    driver = 0
 
     try:
         driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
@@ -188,38 +187,11 @@ def dou(url, city=None, language=None):
                                  })
             else:
                 errors.append({'url': url, 'title': "Div does not exists"})
-
-        # if driver:
-        #     soup = bs(driver.page_source, 'html.parser')
-        #     main_ul = soup.find('ul', attrs={'class': 'lt'})
-        #     if main_ul:
-        #         li_lst = main_ul.find_all('li',
-        #                                   attrs={'class': 'l-vacancy'})
-        #         for li in li_lst:
-        #             title = li.find('div',
-        #                             attrs={'class': 'title'})
-        #             href = title.a['href']
-        #             cont = li.find('div',
-        #                            attrs={'class': 'sh-info'})
-        #             content = cont.text
-        #             company = 'No name'
-        #             comp = li.find('a',
-        #                            attrs={'class': 'company'})
-        #             if comp:
-        #                 company = comp.text
-        #             jobs.append({'title': title.text, 'url': href,
-        #                          'description': content, 'company': company
-        #                          })
-        #     else:
-        #         errors.append({'url': url, 'title': "Div does not exists"})
-        # else:
-        #     errors.append({'url': url, 'title': "Problem with driver"})
-
+        finally:
+            driver.quit()
     except Exception as ex:
         print(ex)
 
-    finally:
-        driver.quit()
 
     return jobs, errors
 

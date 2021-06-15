@@ -183,7 +183,6 @@ def dou(url, city=None, language=None):
         print(ex)
 
     finally:
-        driver.close()
         driver.quit()
 
     return jobs, errors

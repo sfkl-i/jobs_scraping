@@ -87,6 +87,41 @@ def rabota(url, city=None, language=None):
     return jobs, errors
 
 
+def djinni(url, city=None, language=None):
+    jobs = []
+    errors = []
+    domain = 'https://djinni.co'
+    if url:
+        resp = requests.get(url, headers=headers[randint(0, 2)])
+        if resp.status_code == 200:
+            soup = bs(resp.content, 'html.parser')
+            main_ul = soup.find('ul',  attrs={'class': 'list-jobs'})
+            if main_ul:
+                li_lst = main_ul.find_all('li',
+                                          attrs={'class': 'list-jobs__item'})
+                for li in li_lst:
+                    title = li.find('div',
+                                    attrs={'class': 'list-jobs__title'})
+                    href = title.a['href']
+                    cont = li.find('div',
+                                   attrs={'class': 'list-jobs__description'})
+                    content = cont.text
+                    company = 'No name'
+                    comp = li.find('div',
+                                   attrs={'class': 'list-jobs__details__info'})
+                    if comp:
+                        company = comp.text
+                    jobs.append({'title': title.text, 'url': domain + href,
+                                 'description': content, 'company': company,
+                                 'city_id': city, 'language_id': language
+                                 })
+            else:
+                errors.append({'url': url, 'title': "Div does not exists"})
+        else:
+            errors.append({'url': url, 'title': "Page do not response"})
+
+    return jobs, errors
+
 def dou(url, city=None, language=None):
     jobs = []
     errors = []
@@ -188,40 +223,7 @@ def dou(url, city=None, language=None):
     return jobs, errors
 
 
-def djinni(url, city=None, language=None):
-    jobs = []
-    errors = []
-    domain = 'https://djinni.co'
-    if url:
-        resp = requests.get(url, headers=headers[randint(0, 2)])
-        if resp.status_code == 200:
-            soup = bs(resp.content, 'html.parser')
-            main_ul = soup.find('ul',  attrs={'class': 'list-jobs'})
-            if main_ul:
-                li_lst = main_ul.find_all('li',
-                                          attrs={'class': 'list-jobs__item'})
-                for li in li_lst:
-                    title = li.find('div',
-                                    attrs={'class': 'list-jobs__title'})
-                    href = title.a['href']
-                    cont = li.find('div',
-                                   attrs={'class': 'list-jobs__description'})
-                    content = cont.text
-                    company = 'No name'
-                    comp = li.find('div',
-                                   attrs={'class': 'list-jobs__details__info'})
-                    if comp:
-                        company = comp.text
-                    jobs.append({'title': title.text, 'url': domain + href,
-                                 'description': content, 'company': company,
-                                 'city_id': city, 'language_id': language
-                                 })
-            else:
-                errors.append({'url': url, 'title': "Div does not exists"})
-        else:
-            errors.append({'url': url, 'title': "Page do not response"})
 
-    return jobs, errors
 
 
 if __name__ == '__main__':

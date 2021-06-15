@@ -63,7 +63,6 @@ tmp_tasks = [(func, data['url_data'][key], data['city'], data['language'])
              for data in url_list
              for func, key in parsers]
 
-
 if tmp_tasks:
     tasks = asyncio.wait([loop.create_task(main(f)) for f in tmp_tasks])
     loop.run_until_complete(tasks)

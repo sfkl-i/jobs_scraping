@@ -4,6 +4,8 @@ import codecs
 from bs4 import BeautifulSoup as bs
 from random import randint
 from selenium import webdriver
+import time
+import os
 
 __all__ = ('work', "rabota", 'dou', 'djinni')
 
@@ -86,32 +88,53 @@ def rabota(url, city=None, language=None):
 def dou(url, city=None, language=None):
     jobs = []
     errors = []
-    domain = "https://www.work.ua"
-    if url:
-        resp = requests.get(url, headers=headers[randint(0, 2)])
-        if resp.status_code == 200:
-            soup = bs(resp.content, 'html.parser')
-            main_div = soup.find('div', id='vacancyListId')
-            if main_div:
-                li_lst = main_div.find_all('li', attrs={'class': 'l-vacancy'})
+    domain = "https://www.dou.ua"
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--no-sandbox")
+
+    try:
+        driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
+        driver.get(url=url)
+        time.sleep(2)
+        btn_el = driver.find_element_by_css_selector("div.more-btn a")
+        while btn_el.is_displayed():
+            btn_el.click()
+            time.sleep(1.4)
+        if driver:
+            soup = bs(driver.page_source, 'html.parser')
+            main_ul = soup.find('ul', attrs={'class': 'lt'})
+            if main_ul:
+                li_lst = main_ul.find_all('li',
+                                          attrs={'class': 'l-vacancy'})
                 for li in li_lst:
-                    if '__hot' not in li['class']:
-                        title = li.find('div', attrs={'class': 'title'})
-                        href = title.a['href']
-                        cont = li.find('div', attrs={'class': 'sh-info'})
-                        content = cont.text
-                        company = 'No name'
-                        a = title.find('a', attrs={'class': 'company'})
-                        if a:
-                            company = a.text
-                        jobs.append({'title': title.text, 'url': href,
-                                     'description': content, 'company': company,
-                                     'city_id': city, 'language_id': language
-                                     })
+                    title = li.find('div',
+                                    attrs={'class': 'title'})
+                    href = title.a['href']
+                    cont = li.find('div',
+                                   attrs={'class': 'sh-info'})
+                    content = cont.text
+                    company = 'No name'
+                    comp = li.find('a',
+                                   attrs={'class': 'company'})
+                    if comp:
+                        company = comp.text
+                    jobs.append({'title': title.text, 'url': href,
+                                 'description': content, 'company': company
+                                 })
             else:
                 errors.append({'url': url, 'title': "Div does not exists"})
         else:
-            errors.append({'url': url, 'title': "Page do not response"})
+            errors.append({'url': url, 'title': "Problem with driver"})
+
+    except Exception as ex:
+        print(ex)
+
+    finally:
+        driver.close()
+        driver.quit()
 
     return jobs, errors
 

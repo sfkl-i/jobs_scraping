@@ -7,6 +7,8 @@ from selenium import webdriver
 import time
 import os
 
+from selenium.common.exceptions import NoSuchElementException
+
 __all__ = ('work', "rabota", 'dou', 'djinni')
 
 headers = [
@@ -101,38 +103,37 @@ def dou(url, city=None, language=None):
         time.sleep(2)
         try:
             btn_el = driver.find_element_by_css_selector("div.more-btn a")
-        except Exception as ex:
-            print(ex)
-        if btn_el:
             while btn_el.is_displayed():
                 btn_el.click()
                 time.sleep(1.4)
-        else:
-            if driver:
-                soup = bs(driver.page_source, 'html.parser')
-                main_ul = soup.find('ul', attrs={'class': 'lt'})
-                if main_ul:
-                    li_lst = main_ul.find_all('li',
-                                              attrs={'class': 'l-vacancy'})
-                    for li in li_lst:
-                        title = li.find('div',
-                                        attrs={'class': 'title'})
-                        href = title.a['href']
-                        cont = li.find('div',
-                                       attrs={'class': 'sh-info'})
-                        content = cont.text
-                        company = 'No name'
-                        comp = li.find('a',
-                                       attrs={'class': 'company'})
-                        if comp:
-                            company = comp.text
-                        jobs.append({'title': title.text, 'url': href,
-                                     'description': content, 'company': company
-                                     })
-                else:
-                    errors.append({'url': url, 'title': "Div does not exists"})
+        except NoSuchElementException as ex:
+            print(ex)
+
+        if driver:
+            soup = bs(driver.page_source, 'html.parser')
+            main_ul = soup.find('ul', attrs={'class': 'lt'})
+            if main_ul:
+                li_lst = main_ul.find_all('li',
+                                          attrs={'class': 'l-vacancy'})
+                for li in li_lst:
+                    title = li.find('div',
+                                    attrs={'class': 'title'})
+                    href = title.a['href']
+                    cont = li.find('div',
+                                   attrs={'class': 'sh-info'})
+                    content = cont.text
+                    company = 'No name'
+                    comp = li.find('a',
+                                   attrs={'class': 'company'})
+                    if comp:
+                        company = comp.text
+                    jobs.append({'title': title.text, 'url': href,
+                                 'description': content, 'company': company
+                                 })
             else:
-                errors.append({'url': url, 'title': "Problem with driver"})
+                errors.append({'url': url, 'title': "Div does not exists"})
+        else:
+            errors.append({'url': url, 'title': "Problem with driver"})
 
     except Exception as ex:
         print(ex)

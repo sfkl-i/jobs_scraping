@@ -99,7 +99,10 @@ def dou(url, city=None, language=None):
         driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
         driver.get(url=url)
         time.sleep(2)
-        btn_el = driver.find_element_by_css_selector("div.more-btn a")
+        try:
+            btn_el = driver.find_element_by_css_selector("div.more-btn a")
+        except Exception as ex:
+            print(ex)
         if btn_el:
             while btn_el.is_displayed():
                 btn_el.click()
